@@ -9,10 +9,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 
 
+from rest_framework.permissions import IsAuthenticated
+
 class UserInfoViewSet(viewsets.ModelViewSet):
     queryset = UserInfo.objects.all().order_by('-created_at')
     serializer_class = UserInfoSerializer
-    # Only allow authenticated create, read is open
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -20,22 +22,36 @@ class UserInfoViewSet(viewsets.ModelViewSet):
         return context
 
     def perform_create(self, serializer):
-        # Only set filled_by if user is authenticated.
-        if self.request.user.is_authenticated:
-            serializer.save(filled_by=self.request.user)
-        else:
-            serializer.save()  # or raise an error if filled_by is required
+        serializer.save(filled_by=self.request.user)
+        
+    def perform_update(self, serializer):
+        # Record the current user as the one who updated the receipt.
+        serializer.save(updated_by=self.request.user)
 
 
-
+from django.contrib.auth.models import User
 
 class LoginView(APIView):
     def post(self, request):
-        username = request.data.get("username")
+        
+        print("The request data is ", request.data)
+        email = request.data.get("email")
         password = request.data.get("password")
-        user = authenticate(username=username, password=password)
+
+        # Check if a user with this email exists
+        try:
+            user = User.objects.get(email=email)
+            print(user)
+        except User.DoesNotExist:
+            return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Authenticate using the username (Django default auth requires username)
+        user = authenticate(username=user.username, password=password)
 
         if user:
             token, created = Token.objects.get_or_create(user=user)
             return Response({"token": token.key, "message": "Login successful"}, status=status.HTTP_200_OK)
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    

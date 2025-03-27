@@ -31,6 +31,8 @@ class UserInfoSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'receipt_type',
+            'updated_by',
+            'filled_by'
         ]
         read_only_fields = ['created_at', 'updated_at', 'filled_by_username']
     def get_image1_url(self, obj):
@@ -44,3 +46,17 @@ class UserInfoSerializer(serializers.ModelSerializer):
         if obj.image2:
             return request.build_absolute_uri(obj.image2.url)
         return ''
+
+
+
+class UserInfoUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInfo
+        fields = (
+            "name",
+            "gross_weight",
+            "net_weight",
+            "receipt_type",
+            "image1",
+            "image2",
+        )

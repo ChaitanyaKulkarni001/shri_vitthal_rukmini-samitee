@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 
+
 class UserInfo(models.Model):
     GOLD = 'gold'
     SILVER = 'silver'
@@ -8,7 +9,7 @@ class UserInfo(models.Model):
     RECEIPT_TYPES = [
         (GOLD, 'Gold'),
         (SILVER, 'Silver'),
-    ]
+    ] 
     account_head   = models.CharField(max_length=100)
     account_number = models.CharField(max_length=50)
     receipt_number = models.CharField(max_length=50)
@@ -36,5 +37,15 @@ class UserInfo(models.Model):
                         blank=True,
                         related_name='user_infos'
                      )
+    updated_by      = models.ForeignKey(
+                        settings.AUTH_USER_MODEL,
+                        on_delete=models.SET_NULL,
+                        null=True,
+                        blank=True,
+                        related_name='updated_user_infos'
+                     )
+    
+    
+    
     def __str__(self):
         return f"{self.name} - {self.account_number}"
