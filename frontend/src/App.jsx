@@ -7,7 +7,7 @@ import DonationReport from "./components/DonationReport";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute"; // if needed
-
+import EditReceipt from "./components/EditReceipt";
 const AppLayout = () => {
   const location = useLocation();
   // Hide header and footer on the login page
@@ -21,12 +21,13 @@ const AppLayout = () => {
         <Route path="/" element={<Login />} />
         {/* Protected Routes */}
         {/* Uncomment and use ProtectedRoute if you need to protect these routes */}
-        {/* <Route element={<ProtectedRoute />}> */}
+        <Route element={<ProtectedRoute />}>
           <Route path="/form" element={<Form />} />
           <Route path="/add-receipt" element={<Form />} />
           <Route path="/report" element={<DonationReport />} />
           <Route path="/receipt" element={<ReceiptData />} />
-        {/* </Route> */}
+          <Route path="/edit-receipt/:id" element={<EditReceipt />} />
+        </Route>
       </Routes>
       {!hideHeaderFooter && <Footer />}
     </>

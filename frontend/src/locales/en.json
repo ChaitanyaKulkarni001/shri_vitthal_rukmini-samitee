@@ -48,7 +48,7 @@
       "allDonations": "All Donations",
       "goldDonations": "Gold Donations",
       "silverDonations": "Silver Donations",
-      "scroll": "Scroll",
+      "scroll": "Sr/No",
       "head": "Head",
       "acNo": "AcNo",
       "receiptNo": "Receipt No",
@@ -62,7 +62,11 @@
       "modify": "Modify",
       "exit": "Exit",
       "modifiedName": "Modified Donor Name",
-      "modifyAlert": "Modified the first receipt."
+      "modifyAlert": "Modified the first receipt.",
+      "updated_by": "Updated By (ID)",
+      "notAvailable": "Not Updated",
+      "edit": "Edit"  ,
+      "actions": "Actions"
     }
  ,
  
@@ -79,7 +83,7 @@
     "donorPhoto": "Donor Photo",
     "details": "Details",
     "noDonations": "No donations available",
-    "downloadPDF": "Download PDF",
+    "downloadPDF": "Download Report",
     "ornamentAlt": "Ornament Image",
     "donorAlt": "Donor Image",
     "gold": "Gold",

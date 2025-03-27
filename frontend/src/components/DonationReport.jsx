@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { useTranslation } from "react-i18next";
-import "../i18n"
+import "../i18n";
+
 const DonationReport = () => {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
@@ -11,7 +12,7 @@ const DonationReport = () => {
   const reportRef = useRef(null);
   const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-  // Fetch real donation data from the backend on mount
+  // Fetch donation data from backend on mount
   useEffect(() => {
     const fetchDonations = async () => {
       try {
@@ -48,7 +49,8 @@ const DonationReport = () => {
   // Generate and download PDF using html2canvas and jsPDF
   const handleDownloadPDF = async () => {
     const input = reportRef.current;
-    const canvas = await html2canvas(input, { scale: 2 });
+    // html2canvas options updated to handle CORS images
+    const canvas = await html2canvas(input, { scale: 2, useCORS: true });
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("landscape", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -81,6 +83,16 @@ const DonationReport = () => {
           {t("report.switchButton", {
             type: donationType === "gold" ? t("report.silver") : t("report.gold")
           })}
+        </button>
+      </div>
+
+      {/* PDF Download Button moved above the report */}
+      <div className="mb-4 flex flex-wrap gap-2 justify-center">
+        <button
+          onClick={handleDownloadPDF}
+          className="px-6 py-3 font-semibold bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
+        >
+          {t("report.downloadPDF")}
         </button>
       </div>
 
@@ -136,13 +148,15 @@ const DonationReport = () => {
                       src={donation.image1}
                       alt={t("report.ornamentAlt")}
                       className="w-16 h-16 object-cover mx-auto rounded-lg shadow-md"
+                      crossOrigin="anonymous"
                     />
                   </td>
                   <td className="p-3">
                     <img
                       src={donation.image2}
                       alt={t("report.donorAlt")}
-                      className="w-16 h-16 object-cover mx-auto rounded-full shadow-md"
+                      className="w-16 h-16 object-cover mx-auto rounded-lg shadow-md"
+                      crossOrigin="anonymous"
                     />
                   </td>
                   <td className="p-3 text-gray-700">
@@ -160,18 +174,9 @@ const DonationReport = () => {
           </tbody>
         </table>
       </div>
-
-      {/* PDF Download Button */}
-      <div className="mt-4 flex flex-wrap gap-2 justify-center">
-        <button
-          onClick={handleDownloadPDF}
-          className="px-6 py-3 font-semibold bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
-        >
-          {t("report.downloadPDF")}
-        </button>
-      </div>
     </div>
   );
 };
 
 export default DonationReport;
+

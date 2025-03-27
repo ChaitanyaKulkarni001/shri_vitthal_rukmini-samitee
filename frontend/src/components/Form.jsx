@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
 import { useTranslation } from "react-i18next";
+import Swal from "sweetalert2";
 
 // Helper function to convert a base64 data URL to a File object
 const dataURLtoFile = (dataurl, filename) => {
@@ -39,8 +40,8 @@ const Form = () => {
   const [receiptType, setReceiptType] = useState("gold");
 
   // States for image captures (base64 strings)
-  const [ornamentPhoto, setOrnamentPhoto] = useState(null); // image1
-  const [donorPhoto, setDonorPhoto] = useState(null); // image2
+  const [ornamentPhoto, setOrnamentPhoto] = useState(null);
+  const [donorPhoto, setDonorPhoto] = useState(null);
 
   // Webcam references
   const webcamRefOrnament = useRef(null);
@@ -66,7 +67,6 @@ const Form = () => {
         console.error("Error fetching devices:", error);
       }
     };
-
     getDevices();
   }, []);
 
@@ -91,7 +91,7 @@ const Form = () => {
     setDonorPhoto(imageSrc);
   };
 
-  // Handle form submission with FormData (sends files and text fields)
+  // Handle form submission with FormData
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -117,7 +117,7 @@ const Form = () => {
     if (ornamentPhoto) {
       const ornamentFile = dataURLtoFile(
         ornamentPhoto,
-        `${donorName}_ornament.jpg`
+        `${donorName}_${receiptNumber}_${mobile}_ornament.jpg`
       );
       if (ornamentFile) {
         formData.append("image1", ornamentFile);
@@ -126,36 +126,68 @@ const Form = () => {
     if (donorPhoto) {
       const donorFile = dataURLtoFile(
         donorPhoto,
-        `${donorName}_donor.jpg`
+        `${donorName}_${receiptNumber}_${mobile}_donor.jpg`
       );
       if (donorFile) {
         formData.append("image2", donorFile);
       }
     }
 
-    // Use Vite environment variable if available
     const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
     const endpoint = `${baseUrl}/api/users/`;
+
+    // Retrieve auth token from sessionStorage
+    const token = sessionStorage.getItem("authToken");
 
     try {
       const response = await fetch(endpoint, {
         method: "POST",
-        // Browser sets the Content-Type header automatically for FormData
+        headers: {
+          Authorization: token ? `Token ${token}` : "",
+        },
         body: formData,
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert(t("form.successMessage"));
-        resetForm();
+        // Custom SweetAlert2 success alert with animated checkmark
+        Swal.fire({
+          html: `
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <div class="checkmark-circle">
+                <svg viewBox="0 0 52 52">
+                  <circle cx="26" cy="26" r="25"></circle>
+                  <path class="checkmark" d="M14 27 l7 7 l16 -16"></path>
+                </svg>
+              </div>
+              <div style="margin-top: 20px; font-size: 1.5rem; color: #4CAF50;">
+                ${t("form.successMessage")}
+              </div>
+            </div>
+          `,
+          showConfirmButton: false,
+          timer: 1500,
+          backdrop: true,
+        }).then(() => {
+          resetForm();
+        });
       } else {
-        console.error("Backend errors:", data);
-        alert(JSON.stringify(data));
+        Swal.fire({
+          icon: "error",
+          title: t("form.errorTitle"),
+          text: JSON.stringify(data),
+          confirmButtonText: "OK",
+        });
       }
     } catch (error) {
       console.error("Submission error:", error);
-      alert(t("form.submissionError"));
+      Swal.fire({
+        icon: "error",
+        title: t("form.errorTitle"),
+        text: t("form.submissionError"),
+        confirmButtonText: "OK",
+      });
     }
   };
 
@@ -187,8 +219,220 @@ const Form = () => {
         {t("form.title")}
       </h2>
 
-      {/* Camera selection dropdown if multiple devices are available */}
-      {devices.length > 1 && (
+     
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Account Information */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.accountHead")}
+            </span>
+            <input
+              type="text"
+              value={accountHead}
+              onChange={(e) => setAccountHead(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.accountNumber")}
+            </span>
+            <input
+              type="text"
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.receiptNumber")}
+            </span>
+            <input
+              type="text"
+              value={receiptNumber}
+              onChange={(e) => setReceiptNumber(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+        </div>
+
+        {/* Personal & Address Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.donorName")}
+            </span>
+            <input
+              type="text"
+              value={donorName}
+              onChange={(e) => setDonorName(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+              minLength={3}
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.mobileNumber")}
+            </span>
+            <input
+              type="tel"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+              minLength={10}
+              maxLength={15}
+              pattern="\d+"
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.address1")}
+            </span>
+            <textarea
+              value={address1}
+              onChange={(e) => setAddress1(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+              minLength={5}
+              maxLength={200}
+            ></textarea>
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.address2")}
+            </span>
+            <textarea
+              value={address2}
+              onChange={(e) => setAddress2(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              minLength={5}
+              maxLength={200}
+            ></textarea>
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.taluka")}
+            </span>
+            <input
+              type="text"
+              value={taluka}
+              onChange={(e) => setTaluka(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.district")}
+            </span>
+            <input
+              type="text"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.pinCode")}
+            </span>
+            <input
+              type="text"
+              value={pinCode}
+              onChange={(e) => setPinCode(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.state")}
+            </span>
+            <input
+              type="text"
+              value={stateField}
+              onChange={(e) => setStateField(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+        </div>
+
+        {/* Donation Details */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.grossWeight")}
+            </span>
+            <input
+              type="number"
+              value={grossWeight}
+              onChange={(e) => setGrossWeight(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.netWeight")}
+            </span>
+            <input
+              type="number"
+              value={netWeight}
+              onChange={(e) => setNetWeight(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.goods")}
+            </span>
+            <input
+              type="text"
+              value={goods}
+              onChange={(e) => setGoods(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.gotra")}
+            </span>
+            <input
+              type="text"
+              value={gotra}
+              onChange={(e) => setGotra(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-semibold">
+              {t("form.receiptType")}
+            </span>
+            <select
+              value={receiptType}
+              onChange={(e) => setReceiptType(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-50"
+            >
+              <option value="gold">{t("form.gold")}</option>
+              <option value="silver">{t("form.silver")}</option>
+            </select>
+          </label>
+        </div>
+
+       {/* Camera selection dropdown if multiple devices are available */}
+       {devices.length > 1 && (
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">
             {t("form.selectCamera")}
@@ -207,176 +451,6 @@ const Form = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Account Information */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.accountHead")}</span>
-            <input
-              type="text"
-              value={accountHead}
-              onChange={(e) => setAccountHead(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.accountNumber")}</span>
-            <input
-              type="text"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.receiptNumber")}</span>
-            <input
-              type="text"
-              value={receiptNumber}
-              onChange={(e) => setReceiptNumber(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-        </div>
-
-        {/* Personal & Address Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.donorName")}</span>
-            <input
-              type="text"
-              value={donorName}
-              onChange={(e) => setDonorName(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.mobileNumber")}</span>
-            <input
-              type="tel"
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.address1")}</span>
-            <textarea
-              value={address1}
-              onChange={(e) => setAddress1(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            ></textarea>
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.address2")}</span>
-            <textarea
-              value={address2}
-              onChange={(e) => setAddress2(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-            ></textarea>
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.taluka")}</span>
-            <input
-              type="text"
-              value={taluka}
-              onChange={(e) => setTaluka(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.district")}</span>
-            <input
-              type="text"
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.pinCode")}</span>
-            <input
-              type="text"
-              value={pinCode}
-              onChange={(e) => setPinCode(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.state")}</span>
-            <input
-              type="text"
-              value={stateField}
-              onChange={(e) => setStateField(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-        </div>
-
-        {/* Donation Details */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.grossWeight")}</span>
-            <input
-              type="number"
-              value={grossWeight}
-              onChange={(e) => setGrossWeight(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.netWeight")}</span>
-            <input
-              type="number"
-              value={netWeight}
-              onChange={(e) => setNetWeight(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.goods")}</span>
-            <input
-              type="text"
-              value={goods}
-              onChange={(e) => setGoods(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.gotra")}</span>
-            <input
-              type="text"
-              value={gotra}
-              onChange={(e) => setGotra(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray-700 font-semibold">{t("form.receiptType")}</span>
-            <select
-              value={receiptType}
-              onChange={(e) => setReceiptType(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-50"
-            >
-              <option value="gold">{t("form.gold")}</option>
-              <option value="silver">{t("form.silver")}</option>
-            </select>
-          </label>
-        </div>
 
         {/* Photo Capture Section */}
         <div className="flex flex-col md:flex-row justify-between gap-6">
@@ -406,6 +480,8 @@ const Form = () => {
               />
             )}
           </div>
+
+            
 
           {/* Donor Photo */}
           <div className="flex flex-col items-center">
