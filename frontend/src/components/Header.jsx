@@ -10,22 +10,36 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-yellow-600 text-white p-4 flex justify-between items-center shadow-md">
-      <h1 className="text-xl font-bold">🛕 Trust Management</h1>
-
-      {/* {isAuthenticated && ( */}
-        <>
-          <nav className="space-x-6">
-            <Link to="/form" className="hover:text-gray-200">📄 Form</Link>
-            <Link to="/receipt" className="hover:text-gray-200">🧾 Receipt</Link>
-            <Link to="/report" className="hover:text-gray-200">📊 Report</Link>
-          </nav>
-
-          <button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded">
-            Logout
-          </button>
-        </>
-      {/* )} */}
+    <header className="bg-gray-800 text-white p-4 flex justify-between items-center shadow-md">
+      <h1 className="text-xl font-bold">🛕 Shri Vitthal Rukmini Mandir Samiti</h1>
+      <div className="flex items-center space-x-4">
+        <nav className="flex space-x-4">
+          <Link 
+            to="/form" 
+            className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition duration-300"
+          >
+            Form
+          </Link>
+          <Link 
+            to="/receipt" 
+            className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition duration-300"
+          >
+            Receipt
+          </Link>
+          <Link 
+            to="/report" 
+            className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition duration-300"
+          >
+            Report
+          </Link>
+        </nav>
+        <button 
+          onClick={handleLogout} 
+          className="bg-red-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition duration-300"
+        >
+          Logout
+        </button>
+      </div>
     </header>
   );
 };

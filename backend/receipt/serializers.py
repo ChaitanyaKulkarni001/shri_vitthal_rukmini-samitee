@@ -33,3 +33,14 @@ class UserInfoSerializer(serializers.ModelSerializer):
             'receipt_type',
         ]
         read_only_fields = ['created_at', 'updated_at', 'filled_by_username']
+    def get_image1_url(self, obj):
+        request = self.context.get('request')
+        if obj.image1:
+            return request.build_absolute_uri(obj.image1.url)
+        return ''
+
+    def get_image2_url(self, obj):
+        request = self.context.get('request')
+        if obj.image2:
+            return request.build_absolute_uri(obj.image2.url)
+        return ''

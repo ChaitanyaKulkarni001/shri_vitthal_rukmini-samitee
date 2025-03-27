@@ -1,45 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 const DonationReport = () => {
   const [search, setSearch] = useState("");
-  const [donationType, setDonationType] = useState("gold");
+  const [donationType, setDonationType] = useState("gold"); // "gold" or "silver"
+  const [donations, setDonations] = useState([]);
+  const reportRef = useRef(null);
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-  const donations = [
-    {
-      receiptNo: "GD-2025030000373",
-      donor: "SHRI VITHAL GABHARA DANPETI",
-      address: "Open Peti 27/02/2025, Check Peti 03/03/2025",
-      phone: "9822191932",
-      grossWeight: "0.58",
-      netWeight: "0.50",
-      date: "04/03/2025",
-      time: "12:30 PM",
-      ornamentPhoto: "ornament1.jpg",
-      donorPhoto: "donor1.jpg",
-      details: "SARAF TESTING RECEIPT NO 4057",
-      type: "gold",
-    },
-    {
-      receiptNo: "SD-2025030000380",
-      donor: "SHRI RAM MANDIR DONATION",
-      address: "Silver Peti 01/03/2025",
-      phone: "9822112233",
-      grossWeight: "1.20",
-      netWeight: "1.10",
-      date: "05/03/2025",
-      time: "10:15 AM",
-      ornamentPhoto: "ornament2.jpg",
-      donorPhoto: "donor2.jpg",
-      details: "SARAF TESTING RECEIPT NO 4061",
-      type: "silver",
-    },
-  ];
+  // Fetch real donation data from the backend on mount
+  useEffect(() => {
+    const fetchDonations = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${baseUrl}/api/users/`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": token ? `Token ${token}` : "",
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setDonations(data);
+        } else {
+          console.error("Error fetching donations:", data);
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+      }
+    };
 
-  const filteredDonations = donations.filter(
-    (donation) =>
-      donation.type === donationType &&
-      donation.donor.toLowerCase().includes(search.toLowerCase())
-  );
+    fetchDonations();
+  }, [baseUrl]);
+
+  // Filter donations based on type and search query.
+  // Assumes that your backend returns a field 'receipt_type' (gold/silver)
+  // and 'name' contains the donor name.
+  const filteredDonations = donations.filter((donation) => {
+    const matchesName = donation.name.toLowerCase().includes(search.toLowerCase());
+    const matchesType =
+      donationType === "all" ||
+      donation.receipt_type.toLowerCase() === donationType;
+    return matchesName && matchesType;
+  });
+
+  // Generate and download PDF using html2canvas and jsPDF
+  const handleDownloadPDF = async () => {
+    const input = reportRef.current;
+    const canvas = await html2canvas(input, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("landscape", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("donation_report.pdf");
+  };
 
   return (
     <div className="p-6 bg-gradient-to-b from-yellow-100 to-yellow-50 min-h-screen">
@@ -47,7 +63,7 @@ const DonationReport = () => {
         {donationType === "gold" ? "Gold" : "Silver"} Donation Report
       </h2>
 
-      {/* Search & Switch */}
+      {/* Search and switch for donation type */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <input
           type="text"
@@ -58,68 +74,101 @@ const DonationReport = () => {
         />
         <button
           className="px-6 py-3 font-semibold bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg shadow-md hover:from-yellow-600 hover:to-yellow-700 transition-all"
-          onClick={() => setDonationType(donationType === "gold" ? "silver" : "gold")}
+          onClick={() =>
+            setDonationType(donationType === "gold" ? "silver" : "gold")
+          }
         >
           Switch to {donationType === "gold" ? "Silver" : "Gold"} Donations
         </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded-lg shadow-lg">
-        <table className="w-full bg-white shadow-md rounded-lg">
+      {/* Report Table with real data */}
+      <div ref={reportRef} className="overflow-x-auto rounded-lg shadow-lg bg-white p-4">
+        <table className="w-full">
           <thead>
             <tr className="bg-yellow-600 text-white text-lg">
               <th className="p-3">Receipt No</th>
               <th className="p-3">Donor Name & Address</th>
               <th className="p-3">Weight (Gross/Net)</th>
-              <th className="p-3">Date & Time</th>
+              <th className="p-3">Created At</th>
               <th className="p-3">Ornament Photo</th>
               <th className="p-3">Donor Photo</th>
               <th className="p-3">Details</th>
             </tr>
           </thead>
           <tbody>
-            {filteredDonations.map((donation, index) => (
-              <tr
-                key={index}
-                className={`border-b text-center ${
-                  index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                }`}
-              >
-                <td className="p-3 font-semibold text-gray-800">{donation.receiptNo}</td>
-                <td className="p-3 text-gray-700">
-                  <span className="font-bold">{donation.donor}</span>
-                  <br />
-                  <span className="text-sm">{donation.address}</span>
-                  <br />
-                  <span className="text-sm text-gray-500">{donation.phone}</span>
+            {filteredDonations.length > 0 ? (
+              filteredDonations.map((donation, index) => (
+                <tr
+                  key={index}
+                  className={`border-b text-center ${
+                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                  }`}
+                >
+                  {/* Assuming receipt_number is the receipt no */}
+                  <td className="p-3 font-semibold text-gray-800">
+                    {donation.receipt_number}
+                  </td>
+                  {/* Combining donor name and address fields */}
+                  <td className="p-3 text-gray-700">
+                    <span className="font-bold">{donation.name}</span>
+                    <br />
+                    <span className="text-sm">
+                      {donation.address1} {donation.address2}
+                    </span>
+                    <br />
+                    <span className="text-sm text-gray-500">
+                      {donation.mobile}
+                    </span>
+                  </td>
+                  <td className="p-3 text-gray-700">
+                    {donation.gross_weight} / {donation.net_weight}
+                  </td>
+                  <td className="p-3 text-gray-700">
+                    {new Date(donation.created_at).toLocaleDateString()}{" "}
+                    <br />
+                    <span className="text-sm text-gray-500">
+                      {new Date(donation.created_at).toLocaleTimeString()}
+                    </span>
+                  </td>
+                  <td className="p-3">
+                    <img
+                      src={donation.image1}
+                      alt="Ornament"
+                      className="w-16 h-16 object-cover mx-auto rounded-lg shadow-md"
+                    />
+                  </td>
+                  <td className="p-3">
+                    <img
+                      src={donation.image2}
+                      alt="Donor"
+                      className="w-16 h-16 object-cover mx-auto rounded-full shadow-md"
+                    />
+                  </td>
+                  <td className="p-3 text-gray-700">
+                    {donation.goods || donation.gotra || ""}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="p-4 text-center text-gray-500">
+                  No donations available
                 </td>
-                <td className="p-3 text-gray-700">
-                  <span className="font-medium">{donation.grossWeight} / {donation.netWeight}</span>
-                </td>
-                <td className="p-3 text-gray-700">
-                  {donation.date} <br />
-                  <span className="text-sm text-gray-500">{donation.time}</span>
-                </td>
-                <td className="p-3">
-                  <img
-                    src={`/assets/${donation.ornamentPhoto}`}
-                    alt="Ornament"
-                    className="w-16 h-16 object-cover mx-auto rounded-lg shadow-md"
-                  />
-                </td>
-                <td className="p-3">
-                  <img
-                    src={`/assets/${donation.donorPhoto}`}
-                    alt="Donor"
-                    className="w-16 h-16 object-cover mx-auto rounded-full shadow-md"
-                  />
-                </td>
-                <td className="p-3 text-gray-700">{donation.details}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
+      </div>
+
+      {/* PDF Download Button */}
+      <div className="mt-4 flex flex-wrap gap-2 justify-center">
+        <button
+          onClick={handleDownloadPDF}
+          className="px-6 py-3 font-semibold bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
+        >
+          Download PDF
+        </button>
       </div>
     </div>
   );
