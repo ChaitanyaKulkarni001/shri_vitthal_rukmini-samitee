@@ -1,0 +1,89 @@
+{
+  "header": {
+    "title": "Shri Vitthal Rukmini Mandir Samiti",
+    "form": "Form",
+    "receipt": "Receipt",
+    "report": "Report",
+    "logout": "Logout"
+  },
+  "form": {
+    "title": "Trust Donation Entry",
+    "accountHead": "Account Head:",
+    "accountNumber": "Account Number:",
+    "receiptNumber": "Receipt Number:",
+    "donorName": "Donor Name:",
+    "mobileNumber": "Mobile Number:",
+    "address1": "Address 1:",
+    "address2": "Address 2:",
+    "taluka": "Taluka:",
+    "district": "District:",
+    "pinCode": "Pin Code:",
+    "state": "State:",
+    "grossWeight": "Gross Weight (gms):",
+    "netWeight": "Net Weight (gms):",
+    "goods": "Goods:",
+    "gotra": "Gotra:",
+    "receiptType": "Receipt Type:",
+    "gold": "Gold",
+    "silver": "Silver",
+    "ornamentPhoto": "Ornament Photo:",
+    "donorPhoto": "Donor Photo:",
+    "capture": "Capture",
+    "saveDonation": "Save Donation",
+    "reset": "Reset",
+    "selectCamera": "Select Camera:",
+    "camera": "Camera",
+    "ornamentAlt": "Ornament Image",
+    "donorAlt": "Donor Image",
+    "successMessage": "Donation entry saved successfully!",
+    "submissionError": "An error occurred during submission."
+  }
+
+
+
+  ,
+    "receipt": {
+      "title": "Donation Receipts",
+      "searchPlaceholder": "Search by donor name",
+      "allDonations": "All Donations",
+      "goldDonations": "Gold Donations",
+      "silverDonations": "Silver Donations",
+      "scroll": "Scroll",
+      "head": "Head",
+      "acNo": "AcNo",
+      "receiptNo": "Receipt No",
+      "donorName": "Donor Name",
+      "grossWeight": "Gross Weight",
+      "netWeight": "Net Weight",
+      "type": "Type",
+      "noReceipts": "No receipts available",
+      "add": "Add",
+      "print": "Print",
+      "modify": "Modify",
+      "exit": "Exit",
+      "modifiedName": "Modified Donor Name",
+      "modifyAlert": "Modified the first receipt."
+    }
+ ,
+ 
+  "report": {
+    "title_gold": "Gold Donation Report",
+    "title_silver": "Silver Donation Report",
+    "searchPlaceholder": "Search by donor name",
+    "switchButton": "Switch to {{type}} Donations",
+    "receiptNo": "Receipt No",
+    "donorAddress": "Donor Name & Address",
+    "weight": "Weight (Gross/Net)",
+    "createdAt": "Created At",
+    "ornamentPhoto": "Ornament Photo",
+    "donorPhoto": "Donor Photo",
+    "details": "Details",
+    "noDonations": "No donations available",
+    "downloadPDF": "Download PDF",
+    "ornamentAlt": "Ornament Image",
+    "donorAlt": "Donor Image",
+    "gold": "Gold",
+    "silver": "Silver"
+  }
+   
+}

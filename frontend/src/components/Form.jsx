@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
+import { useTranslation } from "react-i18next";
 
 // Helper function to convert a base64 data URL to a File object
 const dataURLtoFile = (dataurl, filename) => {
@@ -17,6 +18,8 @@ const dataURLtoFile = (dataurl, filename) => {
 };
 
 const Form = () => {
+  const { t } = useTranslation();
+
   // Form field states
   const [accountHead, setAccountHead] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
@@ -112,13 +115,19 @@ const Form = () => {
 
     // Convert base64 images to File objects and append if available
     if (ornamentPhoto) {
-      const ornamentFile = dataURLtoFile(ornamentPhoto, `${donorName}_ornament.jpg`);
+      const ornamentFile = dataURLtoFile(
+        ornamentPhoto,
+        `${donorName}_ornament.jpg`
+      );
       if (ornamentFile) {
         formData.append("image1", ornamentFile);
       }
     }
     if (donorPhoto) {
-      const donorFile = dataURLtoFile(donorPhoto, `${donorName}_donor.jpg`);
+      const donorFile = dataURLtoFile(
+        donorPhoto,
+        `${donorName}_donor.jpg`
+      );
       if (donorFile) {
         formData.append("image2", donorFile);
       }
@@ -131,14 +140,14 @@ const Form = () => {
     try {
       const response = await fetch(endpoint, {
         method: "POST",
-        // Do not set Content-Type header; browser will set it for FormData automatically
+        // Browser sets the Content-Type header automatically for FormData
         body: formData,
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Donation entry saved successfully!");
+        alert(t("form.successMessage"));
         resetForm();
       } else {
         console.error("Backend errors:", data);
@@ -146,7 +155,7 @@ const Form = () => {
       }
     } catch (error) {
       console.error("Submission error:", error);
-      alert("An error occurred during submission.");
+      alert(t("form.submissionError"));
     }
   };
 
@@ -175,16 +184,34 @@ const Form = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg border border-gray-300">
       <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">
-        🛕 Trust Donation Entry
+        {t("form.title")}
       </h2>
+
       {/* Camera selection dropdown if multiple devices are available */}
-      
+      {devices.length > 1 && (
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">
+            {t("form.selectCamera")}
+          </label>
+          <select
+            value={selectedDeviceId}
+            onChange={handleDeviceChange}
+            className="p-2 border border-gray-300 rounded bg-gray-50"
+          >
+            {devices.map((device, index) => (
+              <option key={device.deviceId} value={device.deviceId}>
+                {device.label || `${t("form.camera")} ${index + 1}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Account Information */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <label className="block">
-            <span className="text-gray-700 font-semibold">Account Head:</span>
+            <span className="text-gray-700 font-semibold">{t("form.accountHead")}</span>
             <input
               type="text"
               value={accountHead}
@@ -194,7 +221,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Account Number:</span>
+            <span className="text-gray-700 font-semibold">{t("form.accountNumber")}</span>
             <input
               type="text"
               value={accountNumber}
@@ -204,7 +231,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Receipt Number:</span>
+            <span className="text-gray-700 font-semibold">{t("form.receiptNumber")}</span>
             <input
               type="text"
               value={receiptNumber}
@@ -218,7 +245,7 @@ const Form = () => {
         {/* Personal & Address Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-gray-700 font-semibold">Donor Name:</span>
+            <span className="text-gray-700 font-semibold">{t("form.donorName")}</span>
             <input
               type="text"
               value={donorName}
@@ -228,7 +255,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Mobile Number:</span>
+            <span className="text-gray-700 font-semibold">{t("form.mobileNumber")}</span>
             <input
               type="tel"
               value={mobile}
@@ -238,7 +265,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Address 1:</span>
+            <span className="text-gray-700 font-semibold">{t("form.address1")}</span>
             <textarea
               value={address1}
               onChange={(e) => setAddress1(e.target.value)}
@@ -247,7 +274,7 @@ const Form = () => {
             ></textarea>
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Address 2:</span>
+            <span className="text-gray-700 font-semibold">{t("form.address2")}</span>
             <textarea
               value={address2}
               onChange={(e) => setAddress2(e.target.value)}
@@ -255,7 +282,7 @@ const Form = () => {
             ></textarea>
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Taluka:</span>
+            <span className="text-gray-700 font-semibold">{t("form.taluka")}</span>
             <input
               type="text"
               value={taluka}
@@ -265,7 +292,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">District:</span>
+            <span className="text-gray-700 font-semibold">{t("form.district")}</span>
             <input
               type="text"
               value={district}
@@ -275,7 +302,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Pin Code:</span>
+            <span className="text-gray-700 font-semibold">{t("form.pinCode")}</span>
             <input
               type="text"
               value={pinCode}
@@ -285,7 +312,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">State:</span>
+            <span className="text-gray-700 font-semibold">{t("form.state")}</span>
             <input
               type="text"
               value={stateField}
@@ -299,7 +326,7 @@ const Form = () => {
         {/* Donation Details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <label className="block">
-            <span className="text-gray-700 font-semibold">Gross Weight (gms):</span>
+            <span className="text-gray-700 font-semibold">{t("form.grossWeight")}</span>
             <input
               type="number"
               value={grossWeight}
@@ -309,7 +336,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Net Weight (gms):</span>
+            <span className="text-gray-700 font-semibold">{t("form.netWeight")}</span>
             <input
               type="number"
               value={netWeight}
@@ -319,7 +346,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Goods:</span>
+            <span className="text-gray-700 font-semibold">{t("form.goods")}</span>
             <input
               type="text"
               value={goods}
@@ -329,7 +356,7 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Gotra:</span>
+            <span className="text-gray-700 font-semibold">{t("form.gotra")}</span>
             <input
               type="text"
               value={gotra}
@@ -339,42 +366,24 @@ const Form = () => {
             />
           </label>
           <label className="block">
-            <span className="text-gray-700 font-semibold">Receipt Type:</span>
+            <span className="text-gray-700 font-semibold">{t("form.receiptType")}</span>
             <select
               value={receiptType}
               onChange={(e) => setReceiptType(e.target.value)}
               className="w-full p-2 border rounded bg-gray-50"
             >
-              <option value="gold">Gold</option>
-              <option value="silver">Silver</option>
+              <option value="gold">{t("form.gold")}</option>
+              <option value="silver">{t("form.silver")}</option>
             </select>
           </label>
         </div>
 
-        {devices.length > 1 && (
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">
-            Select Camera:
-          </label>
-          <select
-            value={selectedDeviceId}
-            onChange={handleDeviceChange}
-            className="p-2 border border-gray-300 rounded bg-gray-50"
-          >
-            {devices.map((device, index) => (
-              <option key={device.deviceId} value={device.deviceId}>
-                {device.label || `Camera ${index + 1}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
         {/* Photo Capture Section */}
         <div className="flex flex-col md:flex-row justify-between gap-6">
           {/* Ornament Photo */}
           <div className="flex flex-col items-center">
             <span className="text-gray-700 font-semibold mb-1">
-              Ornament Photo:
+              {t("form.ornamentPhoto")}
             </span>
             <Webcam
               ref={webcamRefOrnament}
@@ -387,12 +396,12 @@ const Form = () => {
               onClick={captureOrnamentPhoto}
               className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
-              Capture
+              {t("form.capture")}
             </button>
             {ornamentPhoto && (
               <img
                 src={ornamentPhoto}
-                alt="Ornament"
+                alt={t("form.ornamentAlt")}
                 className="w-24 h-24 mt-2 border rounded-lg"
               />
             )}
@@ -401,7 +410,7 @@ const Form = () => {
           {/* Donor Photo */}
           <div className="flex flex-col items-center">
             <span className="text-gray-700 font-semibold mb-1">
-              Donor Photo:
+              {t("form.donorPhoto")}
             </span>
             <Webcam
               ref={webcamRefDonor}
@@ -414,12 +423,12 @@ const Form = () => {
               onClick={captureDonorPhoto}
               className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
-              Capture
+              {t("form.capture")}
             </button>
             {donorPhoto && (
               <img
                 src={donorPhoto}
-                alt="Donor"
+                alt={t("form.donorAlt")}
                 className="w-24 h-24 mt-2 border rounded-lg"
               />
             )}
@@ -432,14 +441,14 @@ const Form = () => {
             type="submit"
             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
           >
-            Save Donation
+            {t("form.saveDonation")}
           </button>
           <button
             type="button"
             onClick={resetForm}
             className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
           >
-            Reset
+            {t("form.reset")}
           </button>
         </div>
       </form>

@@ -1,0 +1,88 @@
+{ 
+  "header": {
+    "title": "श्री विठ्ठल रुक्ष्मिणी मंदिर समिति",
+    "form": "फॉर्म",
+    "receipt": "रसिद",
+    "report": "अहवाल",
+    "logout": "लॉगआउट"
+  },
+  "form": {
+    "title": "विश्वसनीयता दान प्रविष्टि",
+    "accountHead": "खाते शीर्षक:",
+    "accountNumber": "खाते क्रमांक:",
+    "receiptNumber": "रसिद क्रमांक:",
+    "donorName": "दानकर्त्याचे नाव:",
+    "mobileNumber": "मोबाइल क्रमांक:",
+    "address1": "पत्ता १:",
+    "address2": "पत्ता २:",
+    "taluka": "तालुका:",
+    "district": "जिल्हा:",
+    "pinCode": "पिन कोड:",
+    "state": "राज्य:",
+    "grossWeight": "एकूण वजन (ग्राम):",
+    "netWeight": "वाजून वजन (ग्राम):",
+    "goods": "सामग्री:",
+    "gotra": "गोत्र:",
+    "receiptType": "रसिद प्रकार:",
+    "gold": "सोनेरी",
+    "silver": "चांदी",
+    "ornamentPhoto": "आभूषण फोटो:",
+    "donorPhoto": "दानकर्ता फोटो:",
+    "capture": "कॅप्चर करा",
+    "saveDonation": "दान जतन करा",
+    "reset": "रीसेट",
+    "selectCamera": "कॅमेरा निवडा:",
+    "camera": "कॅमेरा",
+    "ornamentAlt": "आभूषण प्रतिमा",
+    "donorAlt": "दानकर्ता प्रतिमा",
+    "successMessage": "दान प्रविष्टि यशस्वीपणे जतन झाली!",
+    "submissionError": "सबमिशन दरम्यान त्रुटी आली."
+  },
+
+  "receipt": {
+      "title": "दान रसिद",
+      "searchPlaceholder": "दानकर्त्याचे नाव शोधा",
+      "allDonations": "सर्व दान",
+      "goldDonations": "सोनेरी दान",
+      "silverDonations": "चांदीचे दान",
+      "scroll": "क्रमांक",
+      "head": "खाते",
+      "acNo": "खाते क्रमांक",
+      "receiptNo": "रसिद क्रमांक",
+      "donorName": "दानकर्त्याचे नाव",
+      "grossWeight": "एकूण वजन",
+      "netWeight": "वाजून वजन",
+      "type": "प्रकार",
+      "noReceipts": "कोणतीही रसिद उपलब्ध नाही",
+      "add": "जोडा",
+      "print": "प्रिंट करा",
+      "modify": "सुधारणा",
+      "exit": "बाहेर पडा",
+      "modifiedName": "सुधारित दानकर्ता नाव",
+      "modifyAlert": "पहिली रसिद सुधारली गेली."
+    },
+
+
+    
+      "report": {
+        "title_gold": "सोनेरी दान रसिद",
+        "title_silver": "चांदीचे दान रसिद",
+        "searchPlaceholder": "दानकर्त्याचे नाव शोधा",
+        "switchButton": "{{type}} दानांमध्ये बदला",
+        "receiptNo": "रसिद क्रमांक",
+        "donorAddress": "दानकर्त्याचे नाव व पत्ता",
+        "weight": "वजन (एकूण/वाजून)",
+        "createdAt": "निर्मिती तारीख",
+        "ornamentPhoto": "आभूषण फोटो",
+        "donorPhoto": "दानकर्ता फोटो",
+        "details": "तपशील",
+        "noDonations": "कोणतीही दान रसिद उपलब्ध नाही",
+        "downloadPDF": "PDF डाउनलोड करा",
+        "ornamentAlt": "आभूषण प्रतिमा",
+        "donorAlt": "दानकर्ता प्रतिमा",
+        "gold": "सोनेरी",
+        "silver": "चांदी"
+      }
+        
+    
+}

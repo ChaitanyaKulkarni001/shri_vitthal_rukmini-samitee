@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-
+import { useTranslation } from "react-i18next";
+import "../i18n"
 const DonationReport = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [donationType, setDonationType] = useState("gold"); // "gold" or "silver"
   const [donations, setDonations] = useState([]);
@@ -34,9 +36,7 @@ const DonationReport = () => {
     fetchDonations();
   }, [baseUrl]);
 
-  // Filter donations based on type and search query.
-  // Assumes that your backend returns a field 'receipt_type' (gold/silver)
-  // and 'name' contains the donor name.
+  // Filter donations based on donor name and receipt type.
   const filteredDonations = donations.filter((donation) => {
     const matchesName = donation.name.toLowerCase().includes(search.toLowerCase());
     const matchesType =
@@ -60,14 +60,14 @@ const DonationReport = () => {
   return (
     <div className="p-6 bg-gradient-to-b from-yellow-100 to-yellow-50 min-h-screen">
       <h2 className="text-center text-3xl font-extrabold text-yellow-700 mb-6">
-        {donationType === "gold" ? "Gold" : "Silver"} Donation Report
+        {donationType === "gold" ? t("report.title_gold") : t("report.title_silver")}
       </h2>
 
       {/* Search and switch for donation type */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <input
           type="text"
-          placeholder="Search Donor"
+          placeholder={t("report.searchPlaceholder")}
           className="p-3 border border-gray-300 rounded-md w-full md:w-2/3 focus:ring-2 focus:ring-yellow-500"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -78,7 +78,9 @@ const DonationReport = () => {
             setDonationType(donationType === "gold" ? "silver" : "gold")
           }
         >
-          Switch to {donationType === "gold" ? "Silver" : "Gold"} Donations
+          {t("report.switchButton", {
+            type: donationType === "gold" ? t("report.silver") : t("report.gold")
+          })}
         </button>
       </div>
 
@@ -87,13 +89,13 @@ const DonationReport = () => {
         <table className="w-full">
           <thead>
             <tr className="bg-yellow-600 text-white text-lg">
-              <th className="p-3">Receipt No</th>
-              <th className="p-3">Donor Name & Address</th>
-              <th className="p-3">Weight (Gross/Net)</th>
-              <th className="p-3">Created At</th>
-              <th className="p-3">Ornament Photo</th>
-              <th className="p-3">Donor Photo</th>
-              <th className="p-3">Details</th>
+              <th className="p-3">{t("report.receiptNo")}</th>
+              <th className="p-3">{t("report.donorAddress")}</th>
+              <th className="p-3">{t("report.weight")}</th>
+              <th className="p-3">{t("report.createdAt")}</th>
+              <th className="p-3">{t("report.ornamentPhoto")}</th>
+              <th className="p-3">{t("report.donorPhoto")}</th>
+              <th className="p-3">{t("report.details")}</th>
             </tr>
           </thead>
           <tbody>
@@ -105,11 +107,9 @@ const DonationReport = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  {/* Assuming receipt_number is the receipt no */}
                   <td className="p-3 font-semibold text-gray-800">
                     {donation.receipt_number}
                   </td>
-                  {/* Combining donor name and address fields */}
                   <td className="p-3 text-gray-700">
                     <span className="font-bold">{donation.name}</span>
                     <br />
@@ -134,14 +134,14 @@ const DonationReport = () => {
                   <td className="p-3">
                     <img
                       src={donation.image1}
-                      alt="Ornament"
+                      alt={t("report.ornamentAlt")}
                       className="w-16 h-16 object-cover mx-auto rounded-lg shadow-md"
                     />
                   </td>
                   <td className="p-3">
                     <img
                       src={donation.image2}
-                      alt="Donor"
+                      alt={t("report.donorAlt")}
                       className="w-16 h-16 object-cover mx-auto rounded-full shadow-md"
                     />
                   </td>
@@ -153,7 +153,7 @@ const DonationReport = () => {
             ) : (
               <tr>
                 <td colSpan="7" className="p-4 text-center text-gray-500">
-                  No donations available
+                  {t("report.noDonations")}
                 </td>
               </tr>
             )}
@@ -167,7 +167,7 @@ const DonationReport = () => {
           onClick={handleDownloadPDF}
           className="px-6 py-3 font-semibold bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
         >
-          Download PDF
+          {t("report.downloadPDF")}
         </button>
       </div>
     </div>
